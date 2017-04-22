@@ -1,10 +1,10 @@
 var svg = d3.select("svg"),
 	width = +svg.attr("width"),
 	height = +svg.attr("height"),
-	g = svg.append("g").attr("transform", "translate(40,0)");
+	g = svg.append("g").attr("transform", "translate(100,0)");
 	
 var tree = d3.tree()
-    .size([height - 400, width - 160]);
+    .size([height - 400, width - 300]);
 	
 var wimbledon_treeObj;
 var root;
@@ -81,7 +81,7 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 	console.log(wimbledon_treeObj);
 	root = d3.stratify()
 		.id(function(d) { return d.id; })
-		.parentId(function(d) { return d.parent; })
+		.parentId(function(d) { console.log(d.parent); return d.parent; })
 		(wimbledon_treeObj);
 		
 	tree(root);
@@ -90,6 +90,7 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 				.data(root.descendants().slice(1))
 				.enter().append("path")
 				.attr("class", "link")
+				.style("stroke", function(d) {return d.data.tag == 'W' ? "green":"red";})
 				.attr("d", diagonal);
 				
 	var node = g.selectAll(".node")
@@ -105,7 +106,8 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 		.attr("dy", 3)
 		.attr("x", function(d) { return d.children ? -8 : 8; })
 		.style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-		.text(function(d) { console.log(d.data.data.winner_name); return d.data.tag == 'W' ? d.data.data.winner_name:d.data.data.loser_name; });
+		.style("fill", function(d) {return d.data.tag == 'W' ? "green":"red";})
+		.text(function(d) { return d.data.tag == 'W' ? d.data.data.winner_name:d.data.data.loser_name; });
 	
 	//g.attr("transform", "rotate(90)");
 
