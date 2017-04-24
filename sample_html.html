@@ -9,10 +9,22 @@
 	</head>
 
 	<body>
-		<!--<form>
-			<label><input type="radio" name="mode" value="cluster" checked> Dendrogram</label>
-			<label><input type="radio" name="mode" value="tree"> Tree</label>
-		</form>-->
+		<form>
+			<fieldset>
+				<legend>Selecting Touranment</legend>
+				<p>
+					<label>Year</label>
+					<select id = "yearList" onchange="onYearChange()"></select>
+					
+					<label>Tournament</label>
+					<select id = "tournamentList" onchange="onTourneyChange()">
+						<option value = "wimbledon">Wimbledon</option>
+						<option value = "us">US Open</option>
+						<option value = "aus">Australian Open</option>
+					</select>
+				</p>
+			</fieldset>
+		</form>
 		<svg width="1500" height="2400"></svg>
 		<script type="text/javascript" src="sample_horizontal_d3.js"></script>
 	</body> 

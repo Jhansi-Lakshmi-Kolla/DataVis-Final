@@ -6,28 +6,76 @@ var svg = d3.select("svg"),
 var tree = d3.tree()
     .size([height - 400, width - 300]);
 	
-var wimbledon_treeObj;
+var treeObj;
 var root;
-d3.csv("atp_matches_2016.csv", function(error, data) {
-	if(error) throw error;
-	var wimbledon_data = data.filter(function(row) {
-		return row['tourney_name'] == 'Wimbledon';
+var selected_year = 2016;
+var selected_tourney = "wimbledon";
+
+var startyr = 2000;
+var endyr = 2016;
+var options = "";
+for(var year = startyr ; year <= endyr; year++){
+  options += "<option>"+ year +"</option>";
+}
+document.getElementById("yearList").innerHTML = options;
+
+var year_wise_data = [];
+
+for(var year = startyr ; year <= endyr; year++){
+	d3.csv("atp_matches_" + year + ".csv", function(error, data) {
+		if(error) throw error;
+		var tournaments = {};
+		
+		tournaments.wimbledon= data.filter(function(row) {
+			return row['tourney_name'] == 'Wimbledon';
+		});
+
+		tournaments.aus = data.filter(function(row) {
+			return row['tourney_name'] == 'Australian Open';
+		});
+
+		tournaments.french = data.filter(function(row) {
+			return row['tourney_name'] == 'French Open';
+		});
+
+		tournaments.us = data.filter(function(row) {
+			return row['tourney_name'] == 'US Open' || row['tourney_name'] == 'Us Open';
+		});
+		
+		if((data[0]["tourney_id"]).startsWith(selected_year)) {
+			console.log("year = " + selected_year);
+			loadTree(tournaments[selected_tourney]);
+		} else {
+			console.log("year != " + selected_year);
+		}
+		year_wise_data.push(tournaments);
 	});
+}
+
+
+function diagonal(d) {
+  return "M" + d.y + "," + d.x
+      + "C" + (d.parent.y + 100) + "," + d.x
+      + " " + (d.parent.y + 100) + "," + d.parent.x
+      + " " + d.parent.y + "," + d.parent.x;
+}
+
+function onYearChange() {
+	selected_year = +document.getElementById("yearList").value;
+	console.log("loading tree of " + selected_year + " " + selected_tourney);
+	loadTree(year_wise_data[selected_year-startyr][selected_tourney]);
+}
+
+function onTourneyChange() {
+	selected_tourney = document.getElementById("tournamentList").value;
+	console.log("loading tree of " + selected_year + " " + selected_tourney);
+	loadTree(year_wise_data[selected_year-startyr][selected_tourney]);
+}
+
+function loadTree(csv_data) {
 	
-	var Aus_data = data.filter(function(row) {
-		return row['tourney_name'] == 'Australian Open';
-	});
-	
-	var french_data = data.filter(function(row) {
-		return row['tourney_name'] == 'French Open';
-	});
-	
-	var US_data = data.filter(function(row) {
-		return row['tourney_name'] == 'US Open';
-	});
-	
-	wimbledon_treeObj = [];
-	wimbledon_data.forEach(function(d) {
+	treeObj = [];
+	csv_data.forEach(function(d) {
 		var round = d['round'];
 		var id_winner = round + '-' + d['winner_id'];
 		var id_loser = round + '-' + d['loser_id'];
@@ -66,8 +114,8 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 			"data": d,
 			"tag": 'L'
 		}
-		wimbledon_treeObj.push(winner_obj);
-		wimbledon_treeObj.push(loser_obj);
+		treeObj.push(winner_obj);
+		treeObj.push(loser_obj);
 		if(round == 'F') {
 			var root_obj = {
 				"id": d['winner_id'],
@@ -75,16 +123,18 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 				"data": d,
 				"tag": 'W'
 			}
-			wimbledon_treeObj.push(root_obj);
+			treeObj.push(root_obj);
 		}
 	});
-	console.log(wimbledon_treeObj);
+	//console.log(treeObj);
 	root = d3.stratify()
 		.id(function(d) { return d.id; })
-		.parentId(function(d) { console.log(d.parent); return d.parent; })
-		(wimbledon_treeObj);
+		.parentId(function(d) { return d.parent; })
+		(treeObj);
 		
 	tree(root);
+	
+	g.selectAll("*").remove();
 	
 	var link = g.selectAll(".link")
 				.data(root.descendants().slice(1))
@@ -108,26 +158,4 @@ d3.csv("atp_matches_2016.csv", function(error, data) {
 		.style("text-anchor", function(d) { return d.children ? "end" : "start"; })
 		.style("fill", function(d) {return d.data.tag == 'W' ? "green":"red";})
 		.text(function(d) { return d.data.tag == 'W' ? d.data.data.winner_name:d.data.data.loser_name; });
-	
-	//g.attr("transform", "rotate(90)");
-
-});
-
-/*function diagonal(d) {
-  return "M" + d.x + "," + d.y
-      + "L" + (d.parent.x + 100) + "," + d.y
-      + " " + (d.parent.x + 100) + "," + d.parent.y
-      + " " + d.parent.x + "," + d.parent.y;
-}*/
-
-/*function diagonal(d) {
-  return "M" + d.x + "," + d.y
-      + "L" + d.parent.x + "," + d.parent.y;
-}*/
-
-function diagonal(d) {
-  return "M" + d.y + "," + d.x
-      + "C" + (d.parent.y + 100) + "," + d.x
-      + " " + (d.parent.y + 100) + "," + d.parent.x
-      + " " + d.parent.y + "," + d.parent.x;
 }
