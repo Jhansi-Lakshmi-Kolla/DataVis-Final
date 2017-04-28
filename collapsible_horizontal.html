@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample tree diagram</title>
+		<script src="jquery.min.js"></script>
+		<!--<script src="d3.min.js"></script>-->
+		<script src="//d3js.org/d3.v3.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="collapsible_horizontal_style.css">
+	</head>
+
+	<body>
+		<svg> </svg>
+		<form>
+			<fieldset>
+				<legend>Selection Criteria</legend>
+				<p>
+					Year
+					<select id = "yearList" onchange="onYearChange()"></select>
+					Tournament
+					<select id = "tournamentList" onchange="onTourneyChange()">
+						<option value = "wimbledon">Wimbledon</option>
+						<option value = "us">US Open</option>
+						<option value = "aus">Australian Open</option>
+					</select>
+					<br><br><br>
+					Tree type<br>
+					<input type="radio" name="treeType"  onclick="onTreeTypeChange(this);" value="full" checked="checked">Full
+					<input type="radio" name="treeType"  onclick="onTreeTypeChange(this);" value="collapsed">Collapsed
+				</p>
+			</fieldset>
+		</form>
+		<!--<svg width="1500" height="2400"></svg>-->
+		<!--<svg width="1600" height="800"></svg>-->
+		<script type="text/javascript" src="collapsible_horizontal_d3.js"></script>
+	</body> 
+</html>
